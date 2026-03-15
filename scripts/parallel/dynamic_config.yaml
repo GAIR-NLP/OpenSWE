@@ -1,0 +1,9 @@
+# Configuration for auto-reloading worker settings
+openai_apis:
+  - api_key: your-api-key
+    base_url: https://your-api-base/v1
+    weights: 20.0 # Selection weight for this API
+  - api_key: your-api-key
+    base_url: https://your-api-base/v1
+    weights: 8.0
+process_num: 40 # Number of concurrent worker processes

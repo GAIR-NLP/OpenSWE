@@ -1,0 +1,125 @@
+# This patch is tested to work on SWE-agent/SWE-agent/commit/21b5a6a453ce6052f44e7403a33ba8ded6e80bd8, and may work on future commits
+diff --git a/sweagent/environment/repo.py b/tmp/repo.py
+index 655db8dd..48927e30 100644
+--- a/sweagent/environment/repo.py
++++ b/tmp/repo.py
+@@ -28,15 +28,18 @@ class Repo(Protocol):
+     def get_reset_commands(self) -> list[str]: ...
+ 
+ 
+-def _get_git_reset_commands(base_commit: str) -> list[str]:
+-    return [
+-        "git fetch",
++def _get_git_reset_commands(base_commit: str, skip_fetch: bool = False) -> list[str]:
++    commands = []
++    if not skip_fetch:
++        commands.append("git fetch")
++    commands.extend([
+         "git status",
+         "git restore .",
+         "git reset --hard",
+         f"git checkout {shlex.quote(base_commit)}",
+         "git clean -fdq",
+-    ]
++    ])
++    return commands
+ 
+ 
+ class PreExistingRepoConfig(BaseModel):
+@@ -61,6 +64,9 @@ class PreExistingRepoConfig(BaseModel):
+     reset: bool = True
+     """If True, reset the repository to the base commit after the copy operation."""
+ 
++    skip_fetch: bool = False
++    """If True, skip git fetch in reset commands."""
++
+     model_config = ConfigDict(extra="forbid")
+ 
+     def copy(self, deployment: AbstractDeployment):
+@@ -70,7 +76,7 @@ class PreExistingRepoConfig(BaseModel):
+     def get_reset_commands(self) -> list[str]:
+         """Issued after the copy operation or when the environment is reset."""
+         if self.reset:
+-            return _get_git_reset_commands(self.base_commit)
++            return _get_git_reset_commands(self.base_commit, skip_fetch=self.skip_fetch)
+         return []
+ 
+ 
+@@ -88,6 +94,9 @@ class LocalRepoConfig(BaseModel):
+ 
+     model_config = ConfigDict(extra="forbid")
+ 
++    skip_fetch: bool = False
++    """If True, skip git fetch in reset commands."""
++
+     @property
+     def repo_name(self) -> str:
+         """Set automatically based on the repository name. Cannot be set."""
+@@ -120,7 +129,7 @@ class LocalRepoConfig(BaseModel):
+ 
+     def get_reset_commands(self) -> list[str]:
+         """Issued after the copy operation or when the environment is reset."""
+-        return _get_git_reset_commands(self.base_commit)
++        return _get_git_reset_commands(self.base_commit, skip_fetch=self.skip_fetch)
+ 
+ 
+ class GithubRepoConfig(BaseModel):
+@@ -141,6 +150,9 @@ class GithubRepoConfig(BaseModel):
+ 
+     model_config = ConfigDict(extra="forbid")
+ 
++    skip_fetch: bool = False
++    """If True, skip git fetch in reset commands."""
++
+     def model_post_init(self, __context: Any) -> None:
+         if self.github_url.count("/") == 1:
+             self.github_url = f"https://github.com/{self.github_url}"
+@@ -188,7 +200,7 @@ class GithubRepoConfig(BaseModel):
+ 
+     def get_reset_commands(self) -> list[str]:
+         """Issued after the copy operation or when the environment is reset."""
+-        return _get_git_reset_commands(self.base_commit)
++        return _get_git_reset_commands(self.base_commit, skip_fetch=self.skip_fetch)
+ 
+ 
+ class SWESmithRepoConfig(BaseModel):
+diff --git a/sweagent/run/batch_instances.py b/tmp/batch_instances.py
+index 7b996bed..fda135b2 100644
+--- a/sweagent/run/batch_instances.py
++++ b/tmp/batch_instances.py
+@@ -179,6 +179,12 @@ class SimpleBatchInstance(BaseModel):
+             id_docker_compatible = iid.replace("__", "_1776_")
+             image_name = f"docker.io/swebench/sweb.eval.x86_64.{id_docker_compatible}:latest".lower()
+         extra_fields = {}
++        if "repo" in instance:
++            extra_fields["repo"] = instance.get("repo")
++        if "version" in instance:
++            extra_fields["version"] = instance.get("version")
++        if "base_commit" in instance:
++            extra_fields["base_commit"] = instance.get("base_commit")
+         if "image_assets" in instance:
+             issue_images = json.loads(instance["image_assets"])["problem_statement"]
+             extra_fields["issue_images"] = issue_images
+@@ -218,10 +224,21 @@ class InstancesFromFile(BaseModel, AbstractInstanceSource):
+     type: Literal["file"] = "file"
+     """Discriminator for (de)serialization/CLI. Do not change."""
+ 
++    source: str = "swe_rebench"
++    """Source of the instances. Currently supports `swe_rebench` and `openswe`."""
++
+     def get_instance_configs(self) -> list[BatchInstance]:
+         instance_dicts = load_file(self.path)
+-        simple_instances = [SimpleBatchInstance.model_validate(instance_dict) for instance_dict in instance_dicts]
++        if self.source == "swe_rebench" or self.source == "openswe":
++            simple_instances = [SimpleBatchInstance.from_swe_bench(instance_dict) for instance_dict in instance_dicts]
++        else:
++            simple_instances = [SimpleBatchInstance.model_validate(instance_dict) for instance_dict in instance_dicts]
+         instances = [instance.to_full_batch_instance(self.deployment) for instance in simple_instances]
++        # Skip git fetch for openswe source
++        if self.source == "openswe":
++            for instance in instances:
++                if instance.env.repo is not None:
++                    instance.env.repo.skip_fetch = True
+         return _filter_batch_items(instances, filter_=self.filter, slice_=self.slice, shuffle=self.shuffle)
+ 
+     @property

@@ -1,0 +1,17 @@
+# Initial worker configuration
+dynamic_config:
+  openai_apis:
+    - api_key: your-api-key
+      base_url: https://your-api-base/v1
+      weights: 20.0
+    - api_key: your-api-key
+      base_url: https://your-api-base/v1
+      weights: 8.0
+  process_num: 40
+
+run_command: # Command to execute for each task
+  - python3
+  - /path/to/your/script.py
+
+prometheus_port: 8002 # Port for worker metrics
+check_gap: 3 # Interval in seconds to check for finished tasks

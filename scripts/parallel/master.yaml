@@ -1,0 +1,6 @@
+data_dir: data_dir # Directory containing source tasks and metadata
+node_num: 64 # Number of worker nodes to manage
+task_que_dir: task_que_dir # Shared directory for task distribution
+check_gap: 5 # Interval in seconds to check for free slots
+buffer_size: 2 # Maximum tasks to keep in each worker's queue
+prometheus_port: 8001 # Port for Prometheus metrics

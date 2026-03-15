@@ -1,0 +1,92 @@
+# This patch is tested to work on SWE-rebench/SWE-bench-fork/commit/71aaff544c63b57943056b05a43271afc475e7b7, and may work on future commits
+diff --git a/swebench/harness/constants/__init__.py b/swebench/harness/constants/__init__.py
+index 879e92a..7ff6906 100644
+--- a/swebench/harness/constants/__init__.py
++++ b/swebench/harness/constants/__init__.py
+@@ -36,6 +36,7 @@ class SWEbenchInstance(TypedDict):
+     PASS_TO_PASS: str
+     environment_setup_commit: str
+     install_config: dict | None
++    eval_script: str | None
+ 
+ 
+ # Constants - Test Types, Statuses, Commands
+diff --git a/swebench/harness/grading.py b/swebench/harness/grading.py
+index 9c31c39..3d422a3 100644
+--- a/swebench/harness/grading.py
++++ b/swebench/harness/grading.py
+@@ -1,3 +1,4 @@
++import re
+ from typing import Any
+ 
+ from swebench.harness.constants import (
+@@ -268,6 +269,22 @@ def get_eval_report(
+         return report_map
+     report_map[instance_id]["patch_exists"] = True
+ 
++    if "openswe" in test_spec.namespace:
++        with open(test_log_path, "r") as f:
++            content = f.read()
++
++        if "OPENSWE_EXIT_CODE" in content:
++            report_map[instance_id]["patch_successfully_applied"] = True
++        else:
++            return report_map
++        openswe_match = re.search(r'^OPENSWE_EXIT_CODE=0$', content, re.MULTILINE)
++        report_map[instance_id]["resolved"] = openswe_match is not None
++        report_map[instance_id]["tests_status"] = {
++            "success": [],
++            "failure": [],
++        }
++        return report_map
++
+     # Get evaluation logs
+     eval_status_map, found = get_logs_eval(test_spec, test_log_path)
+ 
+diff --git a/swebench/harness/test_spec/test_spec.py b/swebench/harness/test_spec/test_spec.py
+index 2705fe1..84ac098 100644
+--- a/swebench/harness/test_spec/test_spec.py
++++ b/swebench/harness/test_spec/test_spec.py
+@@ -216,21 +215,29 @@ def make_test_spec(
+ 
+     env_name = "testbed"
+     repo_directory = f"/{env_name}"
+-    if "install_config" in instance:
+-        install_config = instance["install_config"]
+-        specs = install_config
+-    else:
++    if "openswe" in instance["image_name"]:
++        repo_script_list = []
++        env_script_list = []
++        eval_script_list = instance.get("eval_script",None).split("\n") if instance.get("eval_script",None) else []
++        docker_specs = {}
+         install_config = None
+-        specs = MAP_REPO_VERSION_TO_SPECS[repo][version]
+-    docker_specs = specs.get("docker_specs", {})
++        namespace = "openswe"
++    else:
++        if "install_config" in instance:
++            install_config = instance["install_config"]
++            specs = install_config
++        else:
++            install_config = None
++            specs = MAP_REPO_VERSION_TO_SPECS[repo][version]
++        docker_specs = specs.get("docker_specs", {})
+ 
+-    repo_script_list = make_repo_script_list(
+-        specs, repo, repo_directory, base_commit, env_name
+-    )
+-    env_script_list = make_env_script_list(instance, specs, env_name)
+-    eval_script_list = make_eval_script_list(
+-        instance, specs, env_name, repo_directory, base_commit, test_patch
+-    )
++        repo_script_list = make_repo_script_list(
++            specs, repo, repo_directory, base_commit, env_name
++        )
++        env_script_list = make_env_script_list(instance, specs, env_name)
++        eval_script_list = make_eval_script_list(
++            instance, specs, env_name, repo_directory, base_commit, test_patch
++        )
+     # if platform.machine() in {"aarch64", "arm64"}:
+     #     # use arm64 unless explicitly specified
+     #     arch = "arm64" if instance_id not in USE_X86 else "x86_64"
