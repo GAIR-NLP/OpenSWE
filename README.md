@@ -8,7 +8,7 @@
   <a href="https://github.com/GAIR-NLP/OpenSWE" target="_blank">Environments & Scripts</a>
 </p>
 
-<p align="center"> <img src="assets/teaser.png" style="width: 93%;" id="title-icon"> </p>
+<p align="center"> <img src="asset/teaser.png" style="width: 93%;" id="title-icon"> </p>
 </div>
 
 OpenSWE is the largest fully transparent framework for SWE agent training in Python, comprising **45,320 executable Docker environments** spanning over **12.8k repositories**, with all Dockerfiles, evaluation scripts, and infrastructure fully open-sourced for reproducibility. OpenSWE is built through a multi-agent synthesis pipeline deployed across a 64-node distributed cluster, automating repository exploration, Dockerfile construction, evaluation script generation, and iterative test analysis. Beyond scale, we propose a quality-centric filtering pipeline that characterizes the inherent difficulty of each environment, filtering out instances that are either unsolvable or insufficiently challenging and retaining only those that maximize learning efficiency. With \$891K spent on environment construction and an additional \$576K on trajectory sampling and difficulty-aware curation, the project yields about **13,000 curated trajectories** from roughly **9,000 quality-guaranteed environments**.
