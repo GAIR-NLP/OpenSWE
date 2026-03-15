@@ -23,9 +23,9 @@ This repository contains the official implementation of the OpenSWE pipeline—a
 
 - **Strong Empirical Validation**: OpenSWE-32B and OpenSWE-72B achieve **62.4%** and **66.0%** on SWE-bench Verified, establishing SOTA among SFT-based methods in the Qwen2.5 series. Models trained on OpenSWE consistently outperform SWE-rebench across all scales and scaffolds, with a log-linear data scaling trend showing no saturation, and SWE-focused training yields substantial out-of-domain improvements (e.g., up to 12 points on MATH-500, 5+ on science benchmarks) without degrading factual recall.
 
-<div align="center">
+<!-- <div align="center">
 <p align="center"> <img src="../scaling_env/figures/framework.pdf" style="width: 95%;" id="framework-icon"> </p>
-</div>
+</div> -->
 
 ## News
 
