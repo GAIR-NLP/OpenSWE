@@ -134,10 +134,13 @@ This project is licensed under AGPL-3.0. See [LICENSE](./LICENSE) for details.
 If you find OpenSWE useful, please cite:
 
 ```bibtex
-@article{openswe2026,
-  title={daVinci-Env: Open SWE Environment Synthesis at Scale},
-  author={Dayuan Fu and Shenyu Wu and Yunze Wu and Zerui Peng and Yaxing Huang and Jie Sun and Ji Zeng and Mohan Jiang and Lin Zhang and Yukun Li and Jiarui Hu and Liming Liu and Jinlong Hou and Pengfei Liu},
-  journal={arXiv preprint},
-  year={2026}
+@misc{fu2026davincienvopensweenvironment,
+      title={daVinci-Env: Open SWE Environment Synthesis at Scale}, 
+      author={Dayuan Fu and Shenyu Wu and Yunze Wu and Zerui Peng and Yaxing Huang and Jie Sun and Ji Zeng and Mohan Jiang and Lin Zhang and Yukun Li and Jiarui Hu and Liming Liu and Jinlong Hou and Pengfei Liu},
+      year={2026},
+      eprint={2603.13023},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2603.13023}, 
 }
 ```
