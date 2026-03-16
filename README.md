@@ -12,7 +12,7 @@
 
 </div>
 
-<p align="center"> <img src="asset/teaser.jpg" style="width: 93%;" id="title-icon"> </p>
+<p align="center"> <img src="asset/teaser.png" style="width: 93%;" id="title-icon"> </p>
 </div>
 
 OpenSWE is the largest fully transparent framework for SWE agent training in Python, comprising **45,320 executable Docker environments** spanning over **12.8k repositories**, with all Dockerfiles, evaluation scripts, and infrastructure fully open-sourced for reproducibility. OpenSWE is built through a multi-agent synthesis pipeline deployed across a 64-node distributed cluster, automating repository exploration, Dockerfile construction, evaluation script generation, and iterative test analysis. Beyond scale, we propose a quality-centric filtering pipeline that characterizes the inherent difficulty of each environment, filtering out instances that are either unsolvable or insufficiently challenging and retaining only those that maximize learning efficiency. With \$891K spent on environment construction and an additional \$576K on trajectory sampling and difficulty-aware curation, the project yields about **13,000 curated trajectories** from roughly **9,000 quality-guaranteed environments**.
@@ -49,8 +49,8 @@ This repository contains the official implementation of the OpenSWE pipeline—a
 | SWE-gym | 11 | 2.4k | 2.4k | Real |
 | SWE-rebench | 3.5k | 21.3k | 21.3k | Real |
 | SWE-rebench (filtered) | 3.3k | 18.8k | 18.8k | Real |
-|Scale-SWE | 5.2k | 100k | 100k | Real |
-|Scale-SWE (open-sourced) | 1.2k | 20.2k | 20.2k | Real |
+| Scale-SWE | 5.2k | 100k | 100k | Real |
+| Scale-SWE (open-sourced) | 1.2k | 20.2k | 20.2k | Real |
 | **OpenSWE (ours)** | **12.8k** | **45.3k** | **45.3k** | **Real** |
 
 **SWE-bench Verified (Pass@1)**
