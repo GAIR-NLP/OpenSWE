@@ -43,35 +43,35 @@ This repository contains the official implementation of the OpenSWE pipeline—a
 
 **Environment scale comparison**
 
-| Dataset | # Repos | # Images | # Tasks | Source |
-|:--------|:-------:|:--------:|:-------:|:------:|
-| R2E-Gym (Subset) | 10 | 2.4k | 4.6k | Synthetic |
-| SWE-gym | 11 | 2.4k | 2.4k | Real |
-| SWE-rebench | 3.5k | 21.3k | 21.3k | Real |
-| SWE-rebench (filtered) | 3.3k | 18.8k | 18.8k | Real |
-| Scale-SWE | 5.2k | 100k | 100k | Real |
-| Scale-SWE (open-sourced) | 1.2k | 20.2k | 20.2k | Real |
-| **OpenSWE (ours)** | **12.8k** | **45.3k** | **45.3k** | **Real** |
+| Dataset                  |  # Repos  | # Images  |  # Tasks  |  Source   |
+| :----------------------- | :-------: | :-------: | :-------: | :-------: |
+| R2E-Gym (Subset)         |    10     |   2.4k    |   4.6k    | Synthetic |
+| SWE-gym                  |    11     |   2.4k    |   2.4k    |   Real    |
+| SWE-rebench              |   3.5k    |   21.3k   |   21.3k   |   Real    |
+| SWE-rebench (filtered)   |   3.3k    |   18.8k   |   18.8k   |   Real    |
+| Scale-SWE                |   5.2k    |   100k    |   100k    |   Real    |
+| Scale-SWE (open-sourced) |   1.2k    |   20.2k   |   20.2k   |   Real    |
+| **OpenSWE (ours)**       | **12.8k** | **45.3k** | **45.3k** | **Real**  |
 
 **SWE-bench Verified (Pass@1)**
 
-| Model | Backbone | Scaffold | Score |
-|:------|:--------|:--------:|:-----:|
-| SWE-Master-32B-RL | Qwen2.5-Coder-32B-Inst. | R2E-Gym | 61.4 |
-| daVinci-Dev-32B | Qwen2.5-32B-Base | SWE-Agent | 56.1 |
-| **OpenSWE-32B (Ours)** | Qwen2.5-32B-Base | OpenHands | 59.8 |
-| **OpenSWE-32B (Ours)** | Qwen2.5-32B-Base | SWE-Agent | **62.4** |
-| daVinci-Dev-72B | Qwen2.5-72B-Base | SWE-Agent | 58.5 |
-| **OpenSWE-72B (Ours)** | Qwen2.5-72B-Base | OpenHands | 65.0 |
-| **OpenSWE-72B (Ours)** | Qwen2.5-72B-Base | SWE-Agent | **66.0** |
+| Model                  | Backbone                | Scaffold  |  Score   |
+| :--------------------- | :---------------------- | :-------: | :------: |
+| SWE-Master-32B-RL      | Qwen2.5-Coder-32B-Inst. |  R2E-Gym  |   61.4   |
+| daVinci-Dev-32B        | Qwen2.5-32B-Base        | SWE-Agent |   56.1   |
+| **OpenSWE-32B (Ours)** | Qwen2.5-32B-Base        | OpenHands |   59.8   |
+| **OpenSWE-32B (Ours)** | Qwen2.5-32B-Base        | SWE-Agent | **62.4** |
+| daVinci-Dev-72B        | Qwen2.5-72B-Base        | SWE-Agent |   58.5   |
+| **OpenSWE-72B (Ours)** | Qwen2.5-72B-Base        | OpenHands |   65.0   |
+| **OpenSWE-72B (Ours)** | Qwen2.5-72B-Base        | SWE-Agent | **66.0** |
 
 **Impact of environment source (SWE-bench Verified Pass@1)**
 
-| Training Data | SWE-Agent 32B | SWE-Agent 72B | CodeAct 32B | CodeAct 72B |
-|:--------------|:-------------:|:-------------:|:-----------:|:-----------:|
-| SWE-rebench | 50.2% | 63.4% | 51.4% | 62.4% |
-| **OpenSWE** | **62.4%** | **66.0%** | **59.8%** | **65.0%** |
-| SWE-rebench + OpenSWE | 61.4% | 68.0% | 60.3% | 65.5% |
+| Training Data         | SWE-Agent 32B | SWE-Agent 72B | CodeAct 32B | CodeAct 72B |
+| :-------------------- | :-----------: | :-----------: | :---------: | :---------: |
+| SWE-rebench           |     50.2%     |     63.4%     |    51.4%    |    62.4%    |
+| **OpenSWE**           |   **62.4%**   |   **66.0%**   |  **59.8%**  |  **65.0%**  |
+| SWE-rebench + OpenSWE |     61.4%     |     68.0%     |    60.3%    |    65.5%    |
 
 </div>
 
@@ -79,53 +79,112 @@ Training on OpenSWE alone yields large improvements over SWE-rebench across all 
 
 ## Quick Start
 
-### 1. Data schema
+Use the section that matches your goal:
 
-Collect your dataset in the following schema:
+- If you want to use the released OpenSWE data directly, jump to [Use Released Data](#1-use-released-data).
+- If you want to build your own dataset, start from [Build Your Own Dataset](#2-build-your-own-dataset).
+- If you want to integrate OpenSWE environments into SWE-bench evaluation, see [Update SWE-bench Evaluation](#5-update-swe-bench-evaluation).
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `instance_id` | `str` | Unique identifier for the sample. |
-| `repo` | `str` | Full GitHub repo name (e.g., `psf/requests`). |
-| `base_commit` | `str` | SHA of the commit immediately before the PR's first change. |
-| `end_commit` | `str` | SHA of the final commit in the PR. |
-| `problem_statement` | `str` | Issue description or problem to solve. |
-| `patch` | `str` | Diff of changes to functional (non-test) code. |
-| `test_patch` | `str` | Diff of changes to the test suite. |
-| `language` | `str` | Primary programming language of the repo. |
+### 1. Use Released Data
 
-### 2. (Recommended) Prepare system
+If you want to directly use the released OpenSWE dataset, start from this section and skip the dataset collection step in [Build Your Own Dataset](#2-build-your-own-dataset).
 
-- Download all git repositories into a _repocache_ directory.
-- Build base Docker images with `scripts/prepare_baseimg.py`.
+1. Download the release from [GAIR/OpenSWE](https://huggingface.co/datasets/GAIR/OpenSWE)
+2. Choose the dataset file that matches your use case:
+   - `openswe_oss.jsonl`: We have fully open-sourced all repositories whose licenses allow redistribution, including MIT, Apache, GPL, and BSD licenses.
+   - `openswe_other.jsonl`: For repositories that cannot be directly open-sourced, we provide the corresponding Dockerfile and evaluation scripts instead.
 
-### 3. Apply patches for SWE-bench evaluation
+   > During for environment execution and grading, SWE-bench only uses these two components, the Dockerfile and the evaluation script, to assess your agent rollout result. If you want to verify whether the environment you built is correct for instances in `openswe_other.jsonl`, you should use the method provided in the [daVinci-Dev pipeline](https://github.com/GAIR-NLP/daVinci-Dev#pipeline), obtain the corresponding gold patch for each task, and fill the retrieved gold patch into the dataset.
 
-Before running evaluation, apply:
+3. After choosing the dataset file, you can build Docker image with [`scripts/build_images.py`](scripts/build_images.py). Then continue with [Update SWE-bench Evaluation](#5-update-swe-bench-evaluation)
 
-- **swe-agent.patch** — for [SWE-agent/SWE-agent](https://github.com/SWE-agent/SWE-agent): adds `skip_fetch` and OpenSWE instance fields.
-- **swe-bench-fork.patch** — for [SWE-rebench/SWE-bench-fork](https://github.com/SWE-rebench/SWE-bench-fork): adds `eval_script` support and `OPENSWE_EXIT_CODE` grading.
+### 2. Build Your Own Dataset
 
-Replace `/path/to/openswe` with your OpenSWE repo root. On conflicts use `git apply --reject` and resolve `.rej` files. Apply each patch once per repo.
+If you want to build your own dataset for OpenSWE, collect the source repositories, patches, and task metadata yourself, then convert them into JSONL. OpenSWE expects each sample to follow this schema:
 
-### 4. Configure and run
+| Field               | Type  | Description                                                 |
+| ------------------- | ----- | ----------------------------------------------------------- |
+| `instance_id`       | `str` | Unique identifier for the sample.                           |
+| `repo`              | `str` | Full GitHub repo name (e.g., `psf/requests`).               |
+| `base_commit`       | `str` | SHA of the commit immediately before the PR's first change. |
+| `end_commit`        | `str` | SHA of the final commit in the PR.                          |
+| `problem_statement` | `str` | Issue description or problem to solve.                      |
+| `patch`             | `str` | Diff of changes to functional (non-test) code.              |
+| `test_patch`        | `str` | Diff of changes to the test suite.                          |
+| `language`          | `str` | Primary programming language of the repo.                   |
 
-Edit `examples/run.sh` (set `OPENSWE_ROOT`, `DATA_PATH`, `OUTPUT_DIR`, `SETUP_DIR`, `RESULT_DIR`, `DATA_PATH`, API keys, and `DOCKER_REPOSITORY`), then:
+When preparing your own dataset, you should also keep enough original source information to verify that the collected patches and commits are correct.
+
+### 3. Prepare the Runtime Environment
+
+Before running OpenSWE, prepare the following:
+
+- A repo cache directory containing the target repositories, referenced by `SETUP_DIR`
+- A dataset JSONL file, referenced by `DATA_PATH`
+- Output directories for logs and results, referenced by `OUTPUT_DIR` and `RESULT_DIR`
+- API credentials for the model backend you want to use
+- Prebuilt `openswe-*` Docker base images
+
+OpenSWE Dockerfiles are expected to inherit from prebuilt `openswe-*` images. Build them before running the pipeline:
+
+```bash
+pip install -r requirements.txt
+python scripts/prepare_baseimg.py
+```
+
+### 4. Configure and Verify
+
+First verify your setup on one sample:
+
+```bash
+bash examples/run_one.sh
+```
+
+Then run a full dataset build:
 
 ```bash
 bash examples/run.sh
 ```
 
+What to check during verification:
+
+- `scripts/prepare_baseimg.py` completed successfully and the `openswe-*` images exist locally
+- `DATA_PATH` points to a valid JSONL file
+- `SETUP_DIR` points to the repo cache directory
+- OpenSWE can write outputs under `OUTPUT_DIR` and `RESULT_DIR`
+- A single run finishes and generates `Dockerfile`, `eval.sh`, and result artifacts for the sample
+
 For multi-machine building, see [Parallel Task Execution System](./scripts/parallel).
 
-## Troubleshooting
+### 5. Update SWE-bench Evaluation
 
-- **Dataset missing**: Ensure your dataset JSONL exists at the path set in `DATA_PATH`; check schema matches the table above.
-- **Patch conflicts**: Resolve `.rej` files after `git apply --reject` for swe-agent and swe-bench-fork.
+Before running evaluation with SWE-agent and SWE-bench-fork, apply the provided patches:
+
+- `scripts/swe-agent.patch` for [SWE-agent/SWE-agent](https://github.com/SWE-agent/SWE-agent): adds `skip_fetch` and OpenSWE instance fields
+- `scripts/swe-bench-fork.patch` for [SWE-rebench/SWE-bench-fork](https://github.com/SWE-rebench/SWE-bench-fork): adds `eval_script` support and `OPENSWE_EXIT_CODE` grading
+
+Replace `/path/to/openswe` with your OpenSWE repo root:
+
+```bash
+cd /path/to/swe-agent
+git apply /path/to/openswe/scripts/swe-agent.patch
+
+cd /path/to/swe-bench-fork
+git apply /path/to/openswe/scripts/swe-bench-fork.patch
+```
+
+If the upstream SWE-bench repos change and the patch no longer applies cleanly, use:
+
+```bash
+git apply --reject /path/to/openswe/scripts/swe-agent.patch
+git apply --reject /path/to/openswe/scripts/swe-bench-fork.patch
+```
+
+Then resolve the generated `.rej` files manually. Apply each patch once per target repo.
 
 ## Acknowledgement
 
-OpenSWE is inspired by [SWE-Rebench](https://arxiv.org/abs/2505.20411) and [SWE-Factory](https://arxiv.org/abs/2506.10954). We thank these teams for their open-source contributions. 
+OpenSWE is inspired by [SWE-Rebench](https://arxiv.org/abs/2505.20411) and [SWE-Factory](https://arxiv.org/abs/2506.10954). We thank these teams for their open-source contributions.
 
 ## License
 
@@ -137,12 +196,12 @@ If you find OpenSWE useful, please cite:
 
 ```bibtex
 @misc{fu2026davincienvopensweenvironment,
-      title={daVinci-Env: Open SWE Environment Synthesis at Scale}, 
+      title={daVinci-Env: Open SWE Environment Synthesis at Scale},
       author={Dayuan Fu and Shenyu Wu and Yunze Wu and Zerui Peng and Yaxing Huang and Jie Sun and Ji Zeng and Mohan Jiang and Lin Zhang and Yukun Li and Jiarui Hu and Liming Liu and Jinlong Hou and Pengfei Liu},
       year={2026},
       eprint={2603.13023},
       archivePrefix={arXiv},
       primaryClass={cs.SE},
-      url={https://arxiv.org/abs/2603.13023}, 
+      url={https://arxiv.org/abs/2603.13023},
 }
 ```
