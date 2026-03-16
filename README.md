@@ -2,11 +2,15 @@
 
 # OpenSWE: Efficient SWE Environment Synthesis at Scale
 
-<p align="center">
-  <img src="asset/arxiv-logo.svg" alt="arXiv" width="16" height="16"> <a href="https://arxiv.org/abs/" target="_blank">Paper</a> &nbsp; | &nbsp;
-  <a href="https://github.com/GAIR-NLP/OpenSWE" target="_blank">Code</a> &nbsp; | &nbsp;
-  <a href="https://github.com/GAIR-NLP/OpenSWE" target="_blank">Environments & Scripts</a>
-</p>
+<div align="center">
+
+[![Paper](https://img.shields.io/badge/Paper-PDF-1f6feb.svg)](https://github.com/GAIR-NLP/OpenSWE/blob/main/asset/paper.pdf)
+[![arXiv](https://img.shields.io/badge/arXiv-2601.18418-b31b1b.svg)](https://arxiv.org/pdf/2603.13023)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/GAIR-NLP/OpenSWE)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-blue)](https://huggingface.co/datasets/GAIR/OpenSWE)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/GAIR/OpenSWE-72B)
+
+</div>
 
 <p align="center"> <img src="asset/teaser.png" style="width: 93%;" id="title-icon"> </p>
 </div>
